@@ -17,7 +17,7 @@ class Meal {
     var rating: Int
     
     // MARK: Initialization
-    
+    //The ? after init indicates that the constructor may fail i.e. optional instance
     init?(name: String, photo: UIImage?, rating: Int) {
         
         // Initialize stored properties.
