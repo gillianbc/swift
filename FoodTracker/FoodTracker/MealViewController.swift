@@ -9,7 +9,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     // MARK: Properties
     
     @IBOutlet weak var nameTextField: UITextField!
@@ -19,6 +19,17 @@ class ViewController: UIViewController, UITextFieldDelegate, UIImagePickerContro
     @IBOutlet weak var photoImageView: UIImageView!
     
     @IBOutlet weak var ratingControl: RatingControl!
+    
+    @IBOutlet weak var saveButton: UIBarButtonItem!
+    
+    
+    /*
+     This value is either passed by `MealTableViewController` in `prepareForSegue(_:sender:)`
+     or constructed as part of adding a new meal.
+     */
+    var meal: Meal?
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -37,7 +48,10 @@ class ViewController: UIViewController, UITextFieldDelegate, UIImagePickerContro
     func textFieldDidEndEditing(textField: UITextField) {
         mealNameLabel.text = textField.text
     }
-    
+    func textFieldDidBeginEditing(textField: UITextField) {
+        // Disable the Save button while editing.
+        saveButton.enabled = false
+    }
     // MARK: UIImagePickerControllerDelegate
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
         // Dismiss the picker if the user canceled.
@@ -56,7 +70,19 @@ class ViewController: UIViewController, UITextFieldDelegate, UIImagePickerContro
     }
     
     // MARK: Actions
-    
+    // This method lets you configure a view controller before it's presented.
+    /* Notice the nil coalescing operator (??) in the name line. The nil coalescing operator is used to return the value of an optional if the optional has a value, or return a default value otherwise. Here, the operator unwraps the optional String returned by nameTextField.text (which is optional because there may or may not be text in the text field), and returns that value if it’s a valid string. But if it’s nil, the operator the returns the empty string ("") instead.
+     */
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if saveButton === sender {
+            let name = nameTextField.text ?? ""
+            let photo = photoImageView.image
+            let rating = ratingControl.rating
+            
+            // Set the meal to be passed to MealTableViewController after the unwind segue.
+            meal = Meal(name: name, photo: photo, rating: rating)
+        }
+    }
     
     @IBAction func selectImageFromPhotoLibrary(sender: UITapGestureRecognizer) {
         // Hide the keyboard.
@@ -73,6 +99,8 @@ class ViewController: UIViewController, UITextFieldDelegate, UIImagePickerContro
         
         presentViewController(imagePickerController, animated: true, completion: nil)
     }
+    
+    
     @IBAction func setDefaultLabelText(sender: UIButton) {
         mealNameLabel.text = "Default Text"
     }

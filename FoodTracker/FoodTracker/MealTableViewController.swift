@@ -102,9 +102,18 @@ class MealTableViewController: UITableViewController {
     }
     */
 
-    /*
+    
     // MARK: - Navigation
-
+     @IBAction func unwindToMealList(sender: UIStoryboardSegue) {
+     if let sourceViewController = sender.sourceViewController as? MealViewController, meal = sourceViewController.meal {
+     // Add a new meal.
+     
+     let newIndexPath = NSIndexPath(forRow: meals.count, inSection: 0)
+     meals.append(meal)
+     tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Bottom)
+     }
+     }
+    /*
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
