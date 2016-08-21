@@ -29,13 +29,20 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
      */
     var meal: Meal?
     
-    
+    //MARK: ON SCENE LOAD
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Handle the text field’s user input through delegate callbacks.
         nameTextField.delegate = self
         
+        // Set up views if editing an existing Meal.
+        if let meal = meal {
+            navigationItem.title = meal.name
+            nameTextField.text   = meal.name
+            photoImageView.image = meal.photo
+            ratingControl.rating = meal.rating
+        }
         // Enable the Save button only if the text field has a valid Meal name.
         checkValidMealName()
     }
@@ -61,6 +68,7 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         // Disable the Save button if the text field is empty.
         let text = nameTextField.text ?? ""
         saveButton.enabled = !text.isEmpty
+        print("Checking meal name done")
     }
     // MARK: UIImagePickerControllerDelegate
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
@@ -82,9 +90,18 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     // MARK: Actions
     
     @IBAction func CancelButton(sender: UIBarButtonItem) {
-        dismissViewControllerAnimated(true, completion: nil)
-//    textFieldDidEndEditing(nameTextField)  //This will dismiss keyboard, but no good, I'd need two cancel buttons to get back to previous scene
-        
+        /* Depending on style of presentation (modal or push presentation), this view controller needs to be dismissed in two different ways.
+        As the constant name isPresentingInAddMealMode indicates, this means that the meal scene was presented using the Add button. This is because the meal scene is embedded in its own navigation controller when it’s presented in this manner, which means that navigation controller is what presents it. 
+         The else clause gets executed when the meal scene was pushed onto the navigation stack on top of the meal list scene. The code within the else clause executes a method called popViewControllerAnimated, which pops the current view controller (meal scene) off the navigation stack of navigationController and performs an animation of the transition.  Look at the storyboard - the routes thro' controllers are different depending on whether you're adding or amending
+         */
+        let isPresentingInAddMealMode = presentingViewController is UINavigationController
+        if isPresentingInAddMealMode {
+            dismissViewControllerAnimated(true, completion: nil)
+        }
+        else {
+            navigationController!.popViewControllerAnimated(true)
+        }
+        print("Cancel button tapped")
     }
     
     
@@ -92,6 +109,8 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     
     // This method lets you configure a view controller before it's presented.
     /* Notice the nil coalescing operator (??) in the name line. The nil coalescing operator is used to return the value of an optional if the optional has a value, or return a default value otherwise. Here, the operator unwraps the optional String returned by nameTextField.text (which is optional because there may or may not be text in the text field), and returns that value if it’s a valid string. But if it’s nil, the operator the returns the empty string ("") instead.
+     
+     
      */
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if saveButton === sender {
