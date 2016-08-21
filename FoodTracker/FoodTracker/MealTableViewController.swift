@@ -15,13 +15,24 @@ class MealTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        loadSampleMeals()
-        
+        print("In viewdidload")
         // Use the edit button item provided by the table view controller.
         navigationItem.leftBarButtonItem = editButtonItem()
+        
+        // Load any saved meals, otherwise load sample data.
+        if let savedMeals = loadMeals() {
+            meals += savedMeals
+            print("Found meals")
+        }
+        else {
+            
+            // Load the sample data.
+            loadSampleMeals()
+        }
     }
     
     func loadSampleMeals() {
+        print("No Found meals - loading samples")
         let photo1 = UIImage(named: "Meal1")!
         let meal1 = Meal(name: "Caprese Salad", photo: photo1, rating: 4)!
         
@@ -85,11 +96,13 @@ class MealTableViewController: UITableViewController {
             // Delete the row from the data source
             print("deleting1")
             meals.removeAtIndex(indexPath.row)//must remove the data rows first
+            saveMeals()
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
         } else if editingStyle == .Insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
             print("inserting")
-        }    
+        }
+        
     }
     
 
@@ -126,6 +139,8 @@ class MealTableViewController: UITableViewController {
                 meals.append(meal)
                 tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Bottom)
             }
+            // Save the meals.
+            saveMeals()
         }
      }
     
@@ -148,5 +163,22 @@ class MealTableViewController: UITableViewController {
         }
     }
     
+    //MARK: NSCODING
+    func saveMeals() {
+        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(meals, toFile: Meal.ArchiveURL.path!)
+        if !isSuccessfulSave {
+            print("Failed to save meals...")
+        }
+    }
+    
+    func loadMeals() -> [Meal]? {
+        let meallist = NSKeyedUnarchiver.unarchiveObjectWithFile(Meal.ArchiveURL.path!) as? [Meal]
+        print ("Meals found is \(meallist!.count)")
+        if meallist!.count == 0 {
+            return nil
+        }
+        else {
+            return meallist}
+    }
 
 }
