@@ -92,7 +92,9 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     @IBAction func CancelButton(sender: UIBarButtonItem) {
         /* Depending on style of presentation (modal or push presentation), this view controller needs to be dismissed in two different ways.
         As the constant name isPresentingInAddMealMode indicates, this means that the meal scene was presented using the Add button. This is because the meal scene is embedded in its own navigation controller when it’s presented in this manner, which means that navigation controller is what presents it. 
-         The else clause gets executed when the meal scene was pushed onto the navigation stack on top of the meal list scene. The code within the else clause executes a method called popViewControllerAnimated, which pops the current view controller (meal scene) off the navigation stack of navigationController and performs an animation of the transition.  Look at the storyboard - the routes thro' controllers are different depending on whether you're adding or amending
+         The else clause gets executed when the meal scene was pushed onto the navigation stack on top of the meal list scene. The code within the else clause executes a method called popViewControllerAnimated, which pops the current view controller (meal scene) off the navigation stack of navigationController and performs an animation of the transition.  Look at the storyboard - the routes thro' controllers are different depending on whether you're adding or amending.
+         The UIController class has a property navigationController of type UINavigationController?. If the view controller is on a navigation stack, then this property
+         references the navigation controller that this view controller is on.
          */
         let isPresentingInAddMealMode = presentingViewController is UINavigationController
         if isPresentingInAddMealMode {

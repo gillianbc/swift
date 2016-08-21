@@ -16,6 +16,9 @@ class MealTableViewController: UITableViewController {
         super.viewDidLoad()
 
         loadSampleMeals()
+        
+        // Use the edit button item provided by the table view controller.
+        navigationItem.leftBarButtonItem = editButtonItem()
     }
     
     func loadSampleMeals() {
@@ -67,25 +70,28 @@ class MealTableViewController: UITableViewController {
     }
     
 
-    /*
+    
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         // Return false if you do not want the specified item to be editable.
         return true
     }
-    */
+    
 
-    /*
+    
     // Override to support editing the table view.
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
             // Delete the row from the data source
+            print("deleting1")
+            meals.removeAtIndex(indexPath.row)//must remove the data rows first
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
         } else if editingStyle == .Insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+            print("inserting")
         }    
     }
-    */
+    
 
     /*
     // Override to support rearranging the table view.
