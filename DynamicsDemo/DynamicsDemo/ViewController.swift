@@ -18,7 +18,30 @@ class ViewController: UIViewController, UICollisionBehaviorDelegate {
     //MARK: ON LOAD
     
     override func viewDidLoad() {
+        print("Viewdidload")
         super.viewDidLoad()
+//        initView()
+        
+    }
+    override func isBeingDismissed() -> Bool {
+        print("IsBeingDismissed")
+        return true
+    }
+    override func viewWillAppear(animated: Bool) {
+        print("ViewWillAppear")
+        initView()
+    }
+
+    //MARK: Delegate
+    func collisionBehavior(behavior: UICollisionBehavior, beganContactForItem item1: UIDynamicItem, withItem item2: UIDynamicItem, atPoint p: CGPoint){
+//        print("Collision occurred between \(item1.description) and \(item2.description)")
+        let collidingView = item1 as! UIView
+        collidingView.backgroundColor = UIColor.yellowColor()
+        UIView.animateWithDuration(0.3) {
+            collidingView.backgroundColor = UIColor.grayColor()}
+
+    }
+    func initView(){
         let square = UIView(frame: CGRect(x: 100, y: 100, width: 100, height: 100))
         square.backgroundColor = UIColor.grayColor()
         view.addSubview(square)
@@ -36,7 +59,7 @@ class ViewController: UIViewController, UICollisionBehaviorDelegate {
         barrier.backgroundColor = UIColor.redColor()
         view.addSubview(barrier)
         
-        //Adding a collision boundary stops the square falling off the screen or 
+        //Adding a collision boundary stops the square falling off the screen or
         //going through the barrier
         collision = UICollisionBehavior(items: [square, barrier])
         collision.collisionDelegate = self
@@ -52,9 +75,9 @@ class ViewController: UIViewController, UICollisionBehaviorDelegate {
         itemBehaviour.elasticity = 0.6
         animator.addBehavior(itemBehaviour)
         //log what's happening to the square
-//        collision.action = {
-//            print("\(NSStringFromCGAffineTransform(square.transform)) \(NSStringFromCGPoint(square.center))")
-//        }
+        //        collision.action = {
+        //            print("\(NSStringFromCGAffineTransform(square.transform)) \(NSStringFromCGPoint(square.center))")
+        //        }
         
         var updateCount = 0
         collision.action = {
@@ -72,16 +95,6 @@ class ViewController: UIViewController, UICollisionBehaviorDelegate {
             
             ++updateCount
         }
-        
-    }
-
-    //MARK: Delegate
-    func collisionBehavior(behavior: UICollisionBehavior, beganContactForItem item1: UIDynamicItem, withItem item2: UIDynamicItem, atPoint p: CGPoint){
-//        print("Collision occurred between \(item1.description) and \(item2.description)")
-        let collidingView = item1 as! UIView
-        collidingView.backgroundColor = UIColor.yellowColor()
-        UIView.animateWithDuration(0.3) {
-            collidingView.backgroundColor = UIColor.grayColor()}
 
     }
     /*
