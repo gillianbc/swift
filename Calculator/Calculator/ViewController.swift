@@ -23,9 +23,28 @@ class ViewController: UIViewController {
     
 //MARK: Actions
     
+    @IBAction func performOperation(sender: UIButton) {
+        let operation = sender.currentTitle!
+        if userIsEnteringANumber
+        {
+        enter()
+        }
+        
+        switch  operation{
+        case "×": doOperation{$0 * $1}
+        case "÷": doOperation{$1 / $0}
+        case "+": doOperation{$0 + $1}
+        case "−": doOperation{$1 - $0}
+        case "√": doOperation2{sqrt($0)}
+
+        default:
+            break
+        }
+        
+    }
     @IBAction func enter() {
         userIsEnteringANumber = false
-        operandStack.append(1.0)
+        operandStack.append(displayValue)
     }
     @IBAction func addDigitToDisplay(sender: UIButton) {
         let digit = sender.currentTitle!
@@ -57,6 +76,21 @@ class ViewController: UIViewController {
     }
 
 //MARK: Other Methods
+    //arg for doOperation is a function. This function must have 2 args that are doubles 
+    //and must return a double
+    func doOperation(operation: (Double,Double) -> Double) {
+        if operandStack.count >= 2 {
+            displayValue = operation(operandStack.removeLast(),operandStack.removeLast())
+        }
+    }
+    //In the lecture, he didn't have to use a different name, just accepted a different signature
+    //just like it would in Java.
+    //I got an error so just amended the name to make it unique
+    func doOperation2(operation: Double -> Double) {
+        if operandStack.count >= 1 {
+            displayValue = operation(operandStack.removeLast())
+        }
+    }
     
 }
 
