@@ -4,75 +4,83 @@
 //
 //  Created by test on 04/09/2016.
 //  Copyright © 2016 test. All rights reserved.
-//
+//  To delete a line, Ctrl-A, Ctrl-K, Ctrl-K
+//  To go to beginning of line Ctrl-A
+//  To go to end of line Ctrl-E
 
 import Foundation
+
 class CalculatorBrain{
-    private var accumulator = 0.0
+    //MARK: Properties
+    private var accumulator = 0.0  //the total so far
     
-    private var operandStack: Array<Double> = Array<Double>()
-    
-    private var operations: Dictionary<String,Double> = [
-    "∏" : M_PI,
-    "e" : M_E
-    ]
-    
-    private enum operations {
-        case Constant
-        case UnaryOperation
-        case BinaryOperation
-        case Equals
-    }
-    
-    
-    //sets the accumulator to the number being operated on
-    //I dispute his choice of method name (setOperand) - it is setting the accumulator to
-    //the operand passed in; not the other way around, so I have changed the name
-    func setAccumulator(operand: Double){
-            accumulator = operand
-    }
-    func performOperation(symbol: String){
-        if let constant = operations[symbol] {
-            accumulator = constant
-        }
-        
-        
-        
-        switch  symbol{
-        case "×": doOperation{$0 * $1}
-        case "÷": doOperation{$1 / $0}
-        case "+": doOperation{$0 + $1}
-        case "−": doOperation{$1 - $0}
-        case "√": doOperation{sqrt($0)}
-        case "∏": accumulator = M_PI
-        case "e": accumulator = M_E
-        default:
-            break
-        }
-    
-    }
+    //public but cannot be set only got
     var result: Double {
         get{
             return accumulator
         }
     }
     
-    //arg for doOperation is a function. This function must have 2 args that are doubles
-    //and must return a double
-    func doOperation(operation: (Double,Double) -> Double) {
-        if operandStack.count >= 2 {
-            accumulator = operation(operandStack.removeLast(),operandStack.removeLast())
+    private var operationDictionary: Dictionary<String,OperationType> = [
+        "∏" : OperationType.Constant(M_PI),  //type is Constant with associated value M_PI which is a Double
+        "e" : OperationType.Constant(M_E),
+        "√" : OperationType.UnaryOperation(sqrt),
+        "cos" : OperationType.UnaryOperation(cos),
+        "sin" : OperationType.UnaryOperation(sin),
+        "tan" : OperationType.UnaryOperation(tan),
+        "arcsin" : OperationType.UnaryOperation(asin),
+        "arccos" : OperationType.UnaryOperation(acos),
+        "arctan" : OperationType.UnaryOperation(atan),
+        "=" : OperationType.Equals,
+        "×": OperationType.BinaryOperation({$0 * $1}),
+        "÷": OperationType.BinaryOperation({$1 / $0}),
+        "+": OperationType.BinaryOperation({$1 + $0}),
+        "−": OperationType.BinaryOperation({$1 - $0})
+    ]
+    
+    private struct PendingBinaryOperationInfo {
+        var binaryFunction : ((Double, Double) -> Double)
+        var firstOperand: Double
+    }
+    private enum OperationType {
+        case Constant(Double)  //associated value for type Constant is a Double
+        case UnaryOperation((Double)->Double) //associated value for type UnaryOperation is a function that takes a Double and returns a Double
+        case BinaryOperation((Double, Double)->Double)
+        case Equals
+    }
+    
+    private var pending : PendingBinaryOperationInfo?
+    
+    //MARK: Public Methods
+    //sets the accumulator to the number being operated on
+    //I dispute his choice of method name (setOperand) - it is setting the accumulator to
+    //the operand passed in; not the other way around, so I have changed the name
+    func setAccumulator(operand: Double){
+        accumulator = operand
+    }
+    
+    func performOperation(symbol: String){
+        if let operation = operationDictionary[symbol] {
+            switch operation {
+            //create a PendingBinaryOperationInfo struct consisting of the function and the accumulator value
+            case .BinaryOperation(let associatedFunction) :
+                calcTotalSoFar()
+                pending = PendingBinaryOperationInfo(binaryFunction: associatedFunction, firstOperand: accumulator)
+            case .Constant(let associatedDouble) :
+                accumulator = associatedDouble  //we can call the var anything
+            case .Equals :
+                calcTotalSoFar()
+            case .UnaryOperation(let associatedFunction) : accumulator = associatedFunction(accumulator)
+            }
+        }
+                
+    }
+    
+    //MARK: Internal Utility Methods
+    private func calcTotalSoFar(){
+        if pending != nil {
+            accumulator = pending!.binaryFunction(pending!.firstOperand, accumulator)
         }
     }
-    //In the lecture, he didn't have to use a different name, just accepted a different signature
-    //just like it would in Java.
-    //I got an error when this was in the view controller so just amended the name to make it unique.  
-    //This was fine once I moved it out of the view controller.  The view controller inherits from UIViewController so some objective C
-    // compilation is going on.  Method overloading is not supported in objective C
-    func doOperation(operation: Double -> Double) {
-        if operandStack.count >= 1 {
-            accumulator = operation(operandStack.removeLast())
-        }
-    }
-
+    
 }
