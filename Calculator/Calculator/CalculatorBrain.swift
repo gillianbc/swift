@@ -32,10 +32,11 @@ class CalculatorBrain{
         "arccos" : OperationType.UnaryOperation(acos),
         "arctan" : OperationType.UnaryOperation(atan),
         "=" : OperationType.Equals,
+        "©" : OperationType.Clear,
         "×": OperationType.BinaryOperation({$0 * $1}),
-        "÷": OperationType.BinaryOperation({$1 / $0}),
+        "÷": OperationType.BinaryOperation({$0 / $1}),
         "+": OperationType.BinaryOperation({$1 + $0}),
-        "−": OperationType.BinaryOperation({$1 - $0})
+        "−": OperationType.BinaryOperation({$0 - $1})
     ]
     
     private struct PendingBinaryOperationInfo {
@@ -47,6 +48,7 @@ class CalculatorBrain{
         case UnaryOperation((Double)->Double) //associated value for type UnaryOperation is a function that takes a Double and returns a Double
         case BinaryOperation((Double, Double)->Double)
         case Equals
+        case Clear
     }
     
     private var pending : PendingBinaryOperationInfo?
@@ -70,6 +72,8 @@ class CalculatorBrain{
                 accumulator = associatedDouble  //we can call the var anything
             case .Equals :
                 calcTotalSoFar()
+            case .Clear :
+                clearAll()
             case .UnaryOperation(let associatedFunction) : accumulator = associatedFunction(accumulator)
             }
         }
@@ -80,7 +84,12 @@ class CalculatorBrain{
     private func calcTotalSoFar(){
         if pending != nil {
             accumulator = pending!.binaryFunction(pending!.firstOperand, accumulator)
+            pending = nil
         }
+    }
+    private func clearAll(){
+        pending = nil
+        accumulator = 0.0
     }
     
 }

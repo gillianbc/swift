@@ -18,9 +18,6 @@ class ViewController: UIViewController {
     
     @IBOutlet private weak var display: UILabel!
     
-    
-    
-    
 //MARK: Actions
     
     @IBAction private func performOperation(sender: UIButton) {
@@ -34,13 +31,6 @@ class ViewController: UIViewController {
         brain.performOperation(mathSymbol)
         displayValue = brain.result
         
-        
-        
-        
-    }
-    @IBAction private func enter() {
-        userIsEnteringANumber = false
-//        operandStack.append(displayValue)
     }
     
     @IBAction private func touchDigit(sender: UIButton) {
@@ -67,11 +57,14 @@ class ViewController: UIViewController {
             //display.text is an optional string so we have to unwrap it to get a String
             //Casting this String to Double gives us an Optional<Double> as Strings such as "hello"
             //would not be convertable.  So we have to unwrap it again (as we're sure it will be numeric
-            //since we're ony allowing nueric input
+            //since we're ony allowing numeric input
             return Double(display.text!)!
           
         }
         set {
+            //This is not like a java setter - it does not set the value
+            //of this variable.  It's what you want to happen when this
+            //var is being set
             print("In the setter")
             userIsEnteringANumber = false
             display.text = "\(newValue)"
