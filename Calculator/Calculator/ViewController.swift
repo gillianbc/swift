@@ -11,42 +11,39 @@ import UIKit
 class ViewController: UIViewController {
 //MARK: Properties
     var userIsEnteringANumber = false
-    var operandStack: Array<Double> = Array<Double>()
     
+    private var brain = CalculatorBrain()
     
 //MARK: Outlets
     
-    @IBOutlet weak var display: UILabel!
+    @IBOutlet private weak var display: UILabel!
     
     
     
     
 //MARK: Actions
     
-    @IBAction func performOperation(sender: UIButton) {
-        let operation = sender.currentTitle!
+    @IBAction private func performOperation(sender: UIButton) {
         if userIsEnteringANumber
         {
-        enter()
+            brain.setAccumulator(displayValue)
+            userIsEnteringANumber = false
         }
         
-        switch  operation{
-        case "×": doOperation{$0 * $1}
-        case "÷": doOperation{$1 / $0}
-        case "+": doOperation{$0 + $1}
-        case "−": doOperation{$1 - $0}
-        case "√": doOperation2{sqrt($0)}
-
-        default:
-            break
-        }
+        let mathSymbol = sender.currentTitle!
+        brain.performOperation(mathSymbol)
+        displayValue = brain.result
+        
+        
+        
         
     }
-    @IBAction func enter() {
+    @IBAction private func enter() {
         userIsEnteringANumber = false
-        operandStack.append(displayValue)
+//        operandStack.append(displayValue)
     }
-    @IBAction func addDigitToDisplay(sender: UIButton) {
+    
+    @IBAction private func touchDigit(sender: UIButton) {
         let digit = sender.currentTitle!
         if userIsEnteringANumber
         {
@@ -58,39 +55,33 @@ class ViewController: UIViewController {
             display.text = digit
         }
         
-            }
+    }
     
     //MARK: Computed Properties
+    //This variable is a double whose value is always synched with the String display.text
+    //When we set this variable, display.text gets set
+    //When we get this variable, display.text is got
     var displayValue: Double {
         get {
-            let nnn: NSNumberFormatter = NSNumberFormatter()
-            let num: NSNumber = nnn.numberFromString(display.text!)!
-            return num.doubleValue
-//            return NSNumberFormatter.numberFromString(NSNumberFormatter().display.text!)!.doubleValue
-            
+            print("In the getter")
+            //display.text is an optional string so we have to unwrap it to get a String
+            //Casting this String to Double gives us an Optional<Double> as Strings such as "hello"
+            //would not be convertable.  So we have to unwrap it again (as we're sure it will be numeric
+            //since we're ony allowing nueric input
+            return Double(display.text!)!
+          
         }
         set {
+            print("In the setter")
             userIsEnteringANumber = false
             display.text = "\(newValue)"
         }
     }
 
 //MARK: Other Methods
-    //arg for doOperation is a function. This function must have 2 args that are doubles 
-    //and must return a double
-    func doOperation(operation: (Double,Double) -> Double) {
-        if operandStack.count >= 2 {
-            displayValue = operation(operandStack.removeLast(),operandStack.removeLast())
-        }
-    }
-    //In the lecture, he didn't have to use a different name, just accepted a different signature
-    //just like it would in Java.
-    //I got an error so just amended the name to make it unique
-    func doOperation2(operation: Double -> Double) {
-        if operandStack.count >= 1 {
-            displayValue = operation(operandStack.removeLast())
-        }
-    }
+    
+    
+    
     
 }
 
