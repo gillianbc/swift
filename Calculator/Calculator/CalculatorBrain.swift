@@ -31,6 +31,7 @@ class CalculatorBrain{
         "arcsin" : OperationType.UnaryOperation(asin),
         "arccos" : OperationType.UnaryOperation(acos),
         "arctan" : OperationType.UnaryOperation(atan),
+        "±" : OperationType.UnaryOperation({-$0}),
         "=" : OperationType.Equals,
         "©" : OperationType.Clear,
         "×": OperationType.BinaryOperation({$0 * $1}),
