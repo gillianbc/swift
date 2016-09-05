@@ -13,6 +13,7 @@ import Foundation
 class CalculatorBrain{
     //MARK: Properties
     private var accumulator = 0.0  //the total so far
+    private var historyDesc = " "
     
     //public but cannot be set only got
     var result: Double {
@@ -20,6 +21,20 @@ class CalculatorBrain{
             return accumulator
         }
     }
+    var history: String {
+        get {
+            if (isPartialResult)
+            {
+                return historyDesc + "..."
+            }
+            else
+            {
+                return historyDesc + " = "
+            }
+        }
+    }
+    
+    var isPartialResult = false
     
     private var operationDictionary: Dictionary<String,OperationType> = [
         "∏" : OperationType.Constant(M_PI),  //type is Constant with associated value M_PI which is a Double
@@ -28,12 +43,12 @@ class CalculatorBrain{
         "cos" : OperationType.UnaryOperation(cos),
         "sin" : OperationType.UnaryOperation(sin),
         "tan" : OperationType.UnaryOperation(tan),
-        "arcsin" : OperationType.UnaryOperation(asin),
-        "arccos" : OperationType.UnaryOperation(acos),
-        "arctan" : OperationType.UnaryOperation(atan),
+        "sin'" : OperationType.UnaryOperation(asin),
+        "cos'" : OperationType.UnaryOperation(acos),
+        "tan'" : OperationType.UnaryOperation(atan),
         "±" : OperationType.UnaryOperation({-$0}),
         "=" : OperationType.Equals,
-        "©" : OperationType.Clear,
+        "C" : OperationType.Clear,
         "×": OperationType.BinaryOperation({$0 * $1}),
         "÷": OperationType.BinaryOperation({$0 / $1}),
         "+": OperationType.BinaryOperation({$1 + $0}),
@@ -60,37 +75,52 @@ class CalculatorBrain{
     //the operand passed in; not the other way around, so I have changed the name
     func setAccumulator(operand: Double){
         accumulator = operand
+        historyDesc = historyDesc + "\(operand)"
     }
     
     func performOperation(symbol: String){
         if let operation = operationDictionary[symbol] {
+            
             switch operation {
             //create a PendingBinaryOperationInfo struct consisting of the function and the accumulator value
             case .BinaryOperation(let associatedFunction) :
+                isPartialResult = true
+                historyDesc = historyDesc + " \(symbol) "
                 calcTotalSoFar()
                 pending = PendingBinaryOperationInfo(binaryFunction: associatedFunction, firstOperand: accumulator)
             case .Constant(let associatedDouble) :
+                historyDesc = historyDesc + " \(symbol) "
                 accumulator = associatedDouble  //we can call the var anything
             case .Equals :
+                //	historyDesc = historyDesc + " \(symbol) "
                 calcTotalSoFar()
             case .Clear :
                 clearAll()
-            case .UnaryOperation(let associatedFunction) : accumulator = associatedFunction(accumulator)
+            case .UnaryOperation(let associatedFunction) :
+                historyDesc = " \(symbol) (" + historyDesc + ")"
+                accumulator = associatedFunction(accumulator)
             }
         }
-                
+        
     }
     
     //MARK: Internal Utility Methods
     private func calcTotalSoFar(){
         if pending != nil {
             accumulator = pending!.binaryFunction(pending!.firstOperand, accumulator)
-            pending = nil
+            clearOp()
         }
     }
     private func clearAll(){
-        pending = nil
         accumulator = 0.0
+        historyDesc = " "
+        clearOp()
     }
+    private func clearOp(){
+        pending = nil
+        isPartialResult = false
+        
+    }
+    
     
 }

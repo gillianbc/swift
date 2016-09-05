@@ -9,32 +9,41 @@
 import UIKit
 
 class ViewController: UIViewController {
-//MARK: Properties
+    //MARK: Properties
     var userIsEnteringANumber = false
     
     private var brain = CalculatorBrain()
+    private var pointAdded = false
     
-//MARK: Outlets
+    //MARK: Outlets
     
     @IBOutlet private weak var display: UILabel!
     
-//MARK: Actions
+    @IBOutlet private weak var history: UILabel!
+    
+    //MARK: Actions
     
     @IBAction private func performOperation(sender: UIButton) {
         if userIsEnteringANumber
         {
             brain.setAccumulator(displayValue)
             userIsEnteringANumber = false
+            pointAdded = false
         }
         
         let mathSymbol = sender.currentTitle!
         brain.performOperation(mathSymbol)
         displayValue = brain.result
+        history.text = brain.history
         
     }
     
     @IBAction private func touchDigit(sender: UIButton) {
+        
         let digit = sender.currentTitle!
+        if pointAdded && digit == "." {
+            return
+        }
         if userIsEnteringANumber
         {
             display.text = display.text! + digit
@@ -42,8 +51,17 @@ class ViewController: UIViewController {
         }
         else {
             userIsEnteringANumber = true
-            display.text = digit
+            if (digit == ".") {
+                display.text = "0."
+            }
+            else {
+                display.text = digit
+            }
         }
+        if digit == "." {
+            pointAdded = true
+        }
+        
         
     }
     
@@ -59,7 +77,7 @@ class ViewController: UIViewController {
             //would not be convertable.  So we have to unwrap it again (as we're sure it will be numeric
             //since we're ony allowing numeric input
             return Double(display.text!)!
-          
+            
         }
         set {
             //This is not like a java setter - it does not set the value
@@ -67,11 +85,12 @@ class ViewController: UIViewController {
             //var is being set
             print("In the setter")
             userIsEnteringANumber = false
+            pointAdded = false
             display.text = "\(newValue)"
         }
     }
-
-//MARK: Other Methods
+    
+    //MARK: Other Methods
     
     
     
